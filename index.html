@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="ar">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>اختبار إلكتروني</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        direction: rtl;
+        font-weight: 900;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      #login-container {
+        max-width: 400px;
+        margin: 100px auto;
+        padding: 30px;
+        background-color: #ffffff;
+        border: 2px solid #007bff;
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0, 123, 255, 0.2);
+        text-align: center;
+        transition: all 0.3s ease-in-out;
+      }
+
+      #login-container label {
+        display: block;
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 8px;
+        text-align: right;
+      }
+
+      #login-container input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 20px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-sizing: border-box;
+      }
+
+      #login-container button {
+        width: 100%;
+        background-color: #007bff;
+        color: white;
+        padding: 12px 0;
+        font-size: 18px;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      #login-container button:hover {
+        background-color: #0056b3;
+      }
+
+      #result {
+        margin-top: 20px;
+        text-align: right;
+      }
+
+      #timer {
+        font-size: 20px;
+        color: red;
+        font-weight: bold;
+      }
+
+      h2 {
+        font-size: 22px;
+        font-weight: 900;
+        color: #000000;
+      }
+
+      label {
+        font-size: 18px;
+        font-weight: 900;
+        color: #333333;
+      }
+
+      #next-button {
+        position: absolute;
+        left: 20px;
+        bottom: 20px;
+        padding: 10px 20px;
+        font-weight: 900;
+      }
+
+      .correct-answer {
+        color: green;
+        font-weight: 900;
+      }
+
+      .wrong-answer {
+        color: red;
+        font-weight: 900;
+      }
+
+      ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      ul li {
+        margin-bottom: 15px;
+        background-color: #f0f4f8;
+        padding: 10px;
+        border-radius: 6px;
+        font-weight: 900;
+        color: #000;
+        font-size: 18px;
+      }
+
+      #result h2,
+      #result h3,
+      #result p {
+        font-weight: 900;
+        color: #000;
+        font-size: 18px;
+        text-align: right;
+      }
+
+      #retry-button {
+        padding: 10px 20px;
+        font-weight: bold;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>التدريب علي اختبارات الجهاز المركزى</h2>
+
+    <div id="login-container">
+      <label for="password">🔒 أدخل كلمة المرور:</label>
+      <input id="password" type="password" placeholder="مثال: 12345678" />
+      <label for="duration">⏳ حدد مدة الاختبار (بالدقائق):</label>
+      <input id="duration" type="number" value="5" min="1" />
+      <button onclick="checkPassword()">🚀 دخول</button>
+    </div>
+
+    <div class="hidden" id="quiz">
+      <div id="timer">5:00</div>
+      <div id="question-info">السؤال 1 من 20</div>
+      <form id="quizForm">
+        <div id="question-container"></div>
+        <button id="next-button" onclick="nextQuestion(event)" type="button">
+          التالي
+        </button>
+      </form>
+    </div>
+
+    <div class="hidden" id="result"></div>
+
+    <script>
+      const questions = [
+        {
+          question: "ما الاسم الصحيح لشريط الأوامر في برامج Microsoft Office؟",
+          options: [
+            "شريط الأدوات",
+            "شريط الأوامر",
+            "الشريط (Ribbon)",
+            "شريط القوائم",
+          ],
+          answer: "الشريط (Ribbon)",
+        },
+        {
+          question:
+            "كم عدد التبويبات الموجودة في واجهة برنامج Microsoft Word 2010 بشكل افتراضي؟",
+          options: ["1", "7", "3", "4"],
+          answer: "7",
+        },
+        {
+          question:
+            "ما هو نطاق أحجام الخطوط المتوفرة في قائمة أحجام الخطوط في برنامج Word؟",
+          options: ["8 : 72", "10 : 100", "5 : 75", "3 : 80"],
+          answer: "8 : 72",
+        },
+
+        {
+          question:
+            "في أي شريط يظهر إجمالي عدد الصفحات، وعدد الكلمات، واللغة المستخدمة؟",
+          options: [
+            "شريط التمرير",
+            "شريط القوائم",
+            "شريط الوصول السريع",
+            "شريط الحالة",
+          ],
+          answer: "شريط الحالة",
+        },
+        {
+          question:
+            "أي مما يلي يُستخدم للوصول السريع إلى الأوامر والأدوات المستخدمة بشكل شائع؟",
+          options: [
+            "شريط الحالة",
+            "شريط القوائم",
+            "شريط الوصول السريع",
+            "شريط العنوان",
+          ],
+          answer: "شريط الوصول السريع",
+        },
+        {
+          question: "أي تبويب تحتاج لاستخدامه لتغيير هوامش الصفحة؟",
+          options: ["تخطيط الصفحة", "عرض", "الصفحة الرئيسية", "إدراج"],
+          answer: "تخطيط الصفحة",
+        },
+        {
+          question:
+            "عند الكتابة في برنامج Word، هل يظهر عدد الكلمات في شريط العنوان من الأسفل؟",
+          options: ["صح", "خطأ"],
+          answer: "خطأ",
+        },
+        {
+          question: "هل تظهر عدد الصفحات في شريط العنوان؟",
+          options: ["صح", "خطأ"],
+          answer: "خطأ",
+        },
+        {
+          question:
+            "يمكن التعرف على اسم التطبيق أو النافذة المفتوحة من خلال شريط:",
+          options: [
+            "شريط الأدوات",
+            "شريط العنوان",
+            "شريط الحالة",
+            "شريط الصيغة",
+          ],
+          answer: "شريط العنوان",
+        },
+        {
+          question: "أي تبويب يظهر أنواع الخطوط المتاحة للاستخدام؟",
+          options: ["تخطيط الصفحة", "عرض", "المراجع", "الصفحة الرئيسية"],
+          answer: "الصفحة الرئيسية",
+        },
+        {
+          question: "أي تبويب تستخدمه لمعرفة كيف سيبدو مستندك عند طباعته؟",
+          options: ["الصفحة الرئيسية", "مراجعة", "عرض", "المراسلات"],
+          answer: "عرض",
+        },
+        {
+          question: "تقع أزرار التكبير والتصغير (Zoom) في برنامج Word في:",
+          options: [
+            "شريط القوائم",
+            "شريط العنوان",
+            "شريط المهام",
+            "شريط الحالة",
+          ],
+          answer: "شريط الحالة",
+        },
+        {
+          question:
+            "أين توجد أزرار التحكم (إغلاق، تصغير، تكبير) في نافذة البرنامج؟",
+          options: [
+            "شريط المهام",
+            "شريط الأدوات",
+            "شريط الحالة",
+            "شريط العنوان",
+          ],
+          answer: "شريط العنوان",
+        },
+        {
+          question: "أي مما يلي يصف شريط الأدوات (Ribbon) في برنامج الوورد؟",
+          options: [
+            "مساحة فارغة لكتابة النص",
+            "ملف يحتوي على الصور",
+            "قائمة تحتوي على أوامر وأدوات تحرير المستند",
+            "نوع من الخطوط",
+          ],
+          answer: "قائمة تحتوي على أوامر وأدوات تحرير المستند",
+        },
+
+        {
+          question: "شريط المعلومات في أسفل النافذة هو اسم آخر لـ:",
+          options: [
+            "شريط الأدوات",
+            "شريط القوائم",
+            "شريط الحالة",
+            "شريط التنقل",
+          ],
+          answer: "شريط الحالة",
+        },
+        {
+          question: "من خلال شريط الأدوات، يمكن تغيير أي من التالي:",
+          options: ["نوع الخط", "حجم الخط", "اتجاه الصفحة", "كل ما ذكر"],
+          answer: "كل ما ذكر",
+        },
+        {
+          question: "ما هو اختصار لوحة المفاتيح للبحث عن الأخطاء الإملائية؟",
+          options: ["F7", "F2", "F5", "F10"],
+          answer: "F7",
+        },
+        {
+          question:
+            "أي من الأزرار التالية يُستخدم لفتح نافذة المساعدة في البرنامج؟",
+          options: ["F5", "F1", "F10", "F4"],
+          answer: "F1",
+        },
+
+        {
+          question: "الأدوات الموجودة في شريط الوصول السريع تشبه في وظيفتها:",
+          options: [
+            "شريط القوائم",
+            "شريط الأدوات ",
+            "شريط الحالة",
+            "شريط العنوان",
+          ],
+          answer: "شريط الأدوات ",
+        },
+        {
+          question: "تُستخدم تنسيقات الفقرة في البحث عن ملف؟",
+          options: ["صح", "خطأ"],
+          answer: "خطأ",
+        },
+      ];
+      let currentQuestion = 0;
+      let score = 0;
+      let timer;
+      let timeLeft;
+      let userAnswers = [];
+
+      function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+      }
+
+      function shuffleQuestions() {
+        shuffle(questions);
+        questions.forEach((q) => shuffle(q.options));
+      }
+
+      function checkPassword() {
+        const passwordInput = document.getElementById("password").value;
+        const durationInput =
+          parseInt(document.getElementById("duration").value) || 10;
+        timeLeft = durationInput * 60;
+
+        if (passwordInput === "1412") {
+          shuffleQuestions();
+          document.getElementById("login-container").classList.add("hidden");
+          document.getElementById("quiz").classList.remove("hidden");
+          document.getElementById("result").classList.add("hidden");
+          currentQuestion = 0;
+          score = 0;
+          userAnswers = [];
+          loadQuestion();
+          startTimer();
+        } else {
+          alert("🚫 المحاولة غير صحيحة! تأكد من كتابة كلمة السر بشكل دقيق.");
+        }
+      }
+
+      function loadQuestion() {
+        const questionContainer = document.getElementById("question-container");
+        questionContainer.innerHTML = `
+      <h2>${questions[currentQuestion].question}</h2>
+      ${questions[currentQuestion].options
+        .map(
+          (option) => `
+        <label>
+          <input type="radio" name="option" value="${option}" />
+          ${
+            option === questions[currentQuestion].answer
+              ? `<span class="correct">${option}</span>`
+              : option
+          }
+        </label><br>
+      `,
+        )
+        .join("")}
+    `;
+        document.getElementById("question-info").textContent = `السؤال ${
+          currentQuestion + 1
+        } من ${questions.length}`;
+      }
+
+      function nextQuestion(event) {
+        event.preventDefault();
+        const selected = document.querySelector('input[name="option"]:checked');
+        if (!selected) return alert("اختر إجابة.");
+        userAnswers[currentQuestion] = selected.value;
+        if (selected.value === questions[currentQuestion].answer) score++;
+        currentQuestion++;
+        if (currentQuestion < questions.length) {
+          loadQuestion();
+        } else {
+          clearInterval(timer);
+          showResults();
+        }
+      }
+
+      function showResults(timeUp = false) {
+        document.getElementById("quiz").classList.add("hidden");
+        const resultDiv = document.getElementById("result");
+        resultDiv.classList.remove("hidden");
+
+        const percent = ((score / questions.length) * 100).toFixed(1);
+
+        let feedback = "";
+        if (percent == 100) {
+          feedback = "أنت بطل! برافو عليك 👏";
+        } else if (percent >= 80) {
+          feedback = "ممتاز! واضح إنك مذاكر كويس 💪";
+        } else if (percent >= 60) {
+          feedback = "كويس، بس محتاج تراجع شوية 🙂";
+        } else if (percent >= 40) {
+          feedback = "راجع الدروس تاني وحاول تركز أكتر 📚";
+        } else {
+          feedback = "ابدأ من الأول وراجع كويس، شد حيلك! 💡";
+        }
+
+        let warningMsg = "";
+        if (timeUp && currentQuestion < questions.length) {
+          warningMsg = `
+        <p style="color: red;">⏰ انتهى الوقت قبل إكمال جميع الأسئلة.</p>
+        <p>في المرة الجاية حاول تحل الأسئلة بشكل أسرع علشان تلحق تكمل 💡</p>
+      `;
+        }
+
+        let review = "<h3>مراجعة الإجابات:</h3><ul>";
+        questions.forEach((q, i) => {
+          const ua = userAnswers[i] || "لم يُجب";
+          const correct = q.answer;
+          const isCorrect = ua === correct;
+          review += `
+        <li>
+          <strong>السؤال ${i + 1}:</strong> ${q.question}<br>
+          إجابتك: <span class="${
+            isCorrect ? "correct-answer" : "wrong-answer"
+          }">${ua}</span><br>
+          الإجابة الصحيحة: <span class="correct-answer">${correct}</span><br>
+          <strong>التفسير:</strong> ${q.explanation || "لا يوجد تفسير."}
+        </li>
+      `;
+        });
+        review += "</ul>";
+
+        resultDiv.innerHTML = `
+      ${warningMsg}
+      <h2>نتيجة الاختبار</h2>
+      <p>${score} من ${questions.length} | النسبة: ${percent}%</p>
+      <p>${feedback}</p>
+      ${review}
+      <button id="retry-button" onclick="location.reload()">إعادة المحاولة</button>
+    `;
+      }
+
+      function startTimer() {
+        timer = setInterval(() => {
+          timeLeft--;
+          const minutes = Math.floor(timeLeft / 60);
+          const seconds = timeLeft % 60;
+          document.getElementById("timer").textContent = `${minutes}:${
+            seconds < 10 ? "0" : ""
+          }${seconds}`;
+          if (timeLeft <= 0) {
+            clearInterval(timer);
+            alert("انتهى الوقت!");
+            showResults(true);
+          }
+        }, 1000);
+      }
+
+      document
+        .getElementById("quizForm")
+        .addEventListener("keypress", function (event) {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            nextQuestion(event);
+          }
+        });
+    </script>
+  </body>
+</html>
