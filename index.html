@@ -350,7 +350,7 @@
           parseInt(document.getElementById("duration").value) || 10;
         timeLeft = durationInput * 60;
 
-        if (passwordInput === "1412") {
+        if (passwordInput === "453") {
           shuffleQuestions();
           document.getElementById("login-container").classList.add("hidden");
           document.getElementById("quiz").classList.remove("hidden");
@@ -361,7 +361,9 @@
           loadQuestion();
           startTimer();
         } else {
-          alert("🚫 المحاولة غير صحيحة! تأكد من كتابة كلمة السر بشكل دقيق.");
+          alert(
+            "🚫 اكتب كلمة المرور بنفس الطريقة المكتوبة في جروب المشتركين، يعني بالإنجليزي مش بالعربي، وطبعًا من الشمال لليمين.\n\nولو إنت مش معانا في جروب المشتركين، يبقى مش من حقك تحل الاختبار ده. لو حابب تشترك، كلمنا وهنفعّل اشتراكك.",
+          );
         }
       }
 
